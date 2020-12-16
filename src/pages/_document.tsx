@@ -1,29 +1,29 @@
-import * as React from 'react'
+import * as React from "react";
 import Document, {
   Html,
   Head,
   Main,
   NextScript,
   DocumentContext,
-} from 'next/document'
-import {extractCritical} from 'emotion-server'
+} from "next/document";
+import { extractCritical } from "emotion-server";
 
 export default class MyDocument extends Document {
   static async getInitialProps(ctx: DocumentContext) {
-    const initialProps = await Document.getInitialProps(ctx)
-    const styles = extractCritical(initialProps.html)
+    const initialProps = await Document.getInitialProps(ctx);
+    const styles = extractCritical(initialProps.html);
     return {
       ...initialProps,
       styles: (
         <>
           {initialProps.styles}
           <style
-            data-emotion-css={styles.ids.join(' ')}
-            dangerouslySetInnerHTML={{__html: styles.css}}
+            data-emotion-css={styles.ids.join(" ")}
+            dangerouslySetInnerHTML={{ __html: styles.css }}
           />
         </>
       ),
-    }
+    };
   }
 
   render() {
@@ -40,6 +40,6 @@ export default class MyDocument extends Document {
           <NextScript />
         </body>
       </Html>
-    )
+    );
   }
 }
