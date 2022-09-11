@@ -13,6 +13,8 @@ export const serverSchema = z.object({
     process.env.VERCEL_ENV === "production"
       ? z.string().url().optional()
       : z.string().url(),
+  GOOGLE_CLIENT_ID: z.string(),
+  GOOGLE_CLIENT_SECRET: z.string(),
 });
 
 /**
