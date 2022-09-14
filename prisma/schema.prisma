@@ -16,7 +16,7 @@ datasource db {
 
 model Example {
     id   String  @id @default(cuid())
-    text String?
+    text String? @db.Text
 }
 
 // Necessary for Next auth
