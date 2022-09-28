@@ -1,7 +1,13 @@
 import { createRouter } from "./context";
 import { z } from "zod";
+import { getCloudinaryImages } from "../common/get-cloudinary-images";
 
 export const exampleRouter = createRouter()
+  .query("getSession", {
+    resolve({ ctx }) {
+      return ctx.session;
+    },
+  })
   .query("hello", {
     input: z
       .object({
@@ -14,11 +20,22 @@ export const exampleRouter = createRouter()
       };
     },
   })
+  .query("getCloudinaryImages", {
+    input: z.object({
+      folder: z.string(),
+    }),
+    resolve: async ({ input }) => {
+      const { folder } = input;
+      const images = await getCloudinaryImages(folder);
+      return images;
+    },
+  })
   .query("getAll", {
     async resolve({ ctx }) {
       return await ctx.prisma.example.findMany();
     },
-  }).mutation("create", {
+  })
+  .mutation("create", {
     input: z.object({ text: z.string() }),
     async resolve({ ctx, input }) {
       return await ctx.prisma.example.create({
@@ -43,4 +60,3 @@ export const exampleRouter = createRouter()
       });
     },
   });
-

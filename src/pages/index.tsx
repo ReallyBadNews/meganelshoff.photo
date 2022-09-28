@@ -1,5 +1,6 @@
 import { NextPage } from "next";
 import { signIn, signOut } from "next-auth/react";
+import Image from "next/future/image";
 import Head from "next/head";
 import {
   ChangeEventHandler,
@@ -9,6 +10,7 @@ import {
   useState,
 } from "react";
 import { ReactQueryDevtools } from "react-query/devtools";
+// import { getCloudinaryImages } from "../server/common/get-cloudinary-images";
 import { trpc } from "../utils/trpc";
 
 type ButtonProps = ComponentPropsWithoutRef<"button">;
@@ -29,11 +31,13 @@ const Home: NextPage = () => {
   const hello = trpc.useQuery(["example.getAll"]);
   const create = trpc.useMutation(["example.create"]);
   const del = trpc.useMutation(["example.delete"]);
-  const session = trpc.useQuery(["auth.getSession"]);
+  const session = trpc.useQuery(["example.getSession"]);
+  const images = trpc.useQuery([
+    "example.getCloudinaryImages",
+    { folder: "samples/people" },
+  ]);
   const utils = trpc.useContext();
   const [name, setName] = useState("");
-
-  console.log("session", session);
 
   const handleSubmit: FormEventHandler<HTMLFormElement> = async (event) => {
     event.preventDefault();
@@ -75,17 +79,14 @@ const Home: NextPage = () => {
 
       <main className="container mx-auto flex h-screen flex-col items-center  px-4 py-8">
         <h1 className="text-5xl font-extrabold  text-gray-700 md:text-[5rem]">
-          {`Create `}
-          <span className="text-purple-300">T3</span>
-
-          {` App`}
+          {`meganelshoff`}
+          <span className="text-purple-300">.photo</span>
         </h1>
-        <p className="text-2xl text-slate-600">Leave a message</p>
         {session.data?.user ? (
-          <div className="flex flex-col items-center">
+          <div className="mt-8 flex flex-row items-center gap-4">
             <p>{`Hello, ${session.data.user.name}`}</p>
             <button
-              className="rounded-lg bg-red-100 px-4 py-2 text-sm font-medium  text-red-500 hover:bg-red-300"
+              className="rounded-lg bg-red-100 px-4 py-1 text-sm font-medium  text-red-500 hover:bg-red-300"
               onClick={() => {
                 return signOut();
               }}
@@ -131,6 +132,29 @@ const Home: NextPage = () => {
             );
           })}
         </div>
+        {!images.isLoading ? (
+          <div className="max-w-xlg mt-8 grid grid-cols-2 gap-4">
+            {images.data?.resources.map((image) => {
+              if (image.resource_type !== "image") {
+                return null;
+              }
+
+              return (
+                <div key={image.asset_id} className="aspect-[16/9]">
+                  <Image
+                    src={image.url}
+                    alt="TODO"
+                    height={image.height}
+                    width={image.width}
+                    className="rounded-lg shadow-lg"
+                  />
+                </div>
+              );
+            })}
+          </div>
+        ) : (
+          "loading images..."
+        )}
       </main>
       {process.env.NODE_ENV !== "production" && (
         <ReactQueryDevtools initialIsOpen={false} />
@@ -141,29 +165,15 @@ const Home: NextPage = () => {
 
 export default Home;
 
-// export const getServerSideProps = async (ctx: {
-//   req: GetServerSidePropsContext["req"];
-//   res: GetServerSidePropsContext["res"];
-// }) => {
-//   const session = await getServerAuthSession(ctx);
-
-//   console.log("[SERVER] session", session);
-
-//   if (!session) {
-//     return {
-//       redirect: {
-//         destination: '/',
-//         permanent: false,
-//       },
-//     }
-//   }
+// export const getServerSideProps = async () => {
+//   const images = await getCloudinaryImages("samples");
 
 //   return {
 //     props: {
-//       session,
+//       images: images ?? null,
 //     },
-//   }
-// }
+//   };
+// };
 
 /**
  * If you want to statically render this page

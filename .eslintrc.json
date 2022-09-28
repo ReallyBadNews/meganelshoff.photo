@@ -4,6 +4,9 @@
     "project": "./tsconfig.json",
     "extrafileExtensions": [".mjs"]
   },
-  "plugins": ["@typescript-eslint"],
-  "extends": ["next/core-web-vitals", "plugin:@typescript-eslint/recommended"]
+  "plugins": ["@typescript-eslint", "prettier"],
+  "extends": ["next/core-web-vitals", "plugin:@typescript-eslint/recommended"],
+  "rules": {
+    "prettier/prettier": "error"
+  }
 }
