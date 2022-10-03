@@ -1,6 +1,6 @@
 import { NextPage } from "next";
 import { signIn, signOut } from "next-auth/react";
-import Image from "next/future/image";
+import Image from "../components/ds/Image";
 import Head from "next/head";
 import {
   ChangeEventHandler,
@@ -78,7 +78,7 @@ const Home: NextPage = () => {
       </Head>
 
       <main className="container mx-auto flex h-screen flex-col items-center  px-4 py-8">
-        <h1 className="text-5xl font-extrabold  text-gray-700 md:text-[5rem]">
+        <h1 className="text-2xl font-extrabold text-gray-700  md:text-[5rem] lg:text-5xl">
           {`meganelshoff`}
           <span className="text-purple-300">.photo</span>
         </h1>
@@ -133,7 +133,7 @@ const Home: NextPage = () => {
           })}
         </div>
         {!images.isLoading ? (
-          <div className="max-w-xlg mt-8 grid grid-cols-2 gap-4">
+          <div className="max-w-xlg mt-8 grid grid-cols-1 gap-4 lg:grid-cols-2">
             {images.data?.resources.map((image) => {
               if (image.resource_type !== "image") {
                 return null;
@@ -142,11 +142,13 @@ const Home: NextPage = () => {
               return (
                 <div key={image.asset_id} className="aspect-[16/9]">
                   <Image
-                    src={image.url}
+                    src={image.public_id}
                     alt="TODO"
                     height={image.height}
                     width={image.width}
-                    className="rounded-lg shadow-lg"
+                    sizes="100vw"
+                    className="h-auto w-full rounded-lg shadow-lg"
+                    placeholder="blur"
                   />
                 </div>
               );

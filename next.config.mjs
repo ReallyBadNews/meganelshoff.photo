@@ -1,5 +1,3 @@
-import { env } from "./src/env/server.mjs";
-
 /**
  * Don't be scared of the generics here.
  * All they do is to give us autocompletion when using this.
@@ -22,6 +20,7 @@ export default defineNextConfig({
   },
   experimental: { images: { allowFutureImage: true } },
   images: {
-    domains: ["res.cloudinary.com"],
+    // domains: ["res.cloudinary.com"],
+    unoptimized: true,
   },
 });
