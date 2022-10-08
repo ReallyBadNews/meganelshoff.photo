@@ -1,6 +1,8 @@
 import { NextPage } from "next";
 import { signIn, signOut } from "next-auth/react";
 import Image from "../components/ds/Image";
+// import Image from "next/future/image";
+// import Image from "next/image";
 import Head from "next/head";
 import {
   ChangeEventHandler,
@@ -9,8 +11,7 @@ import {
   FormEventHandler,
   useState,
 } from "react";
-import { ReactQueryDevtools } from "react-query/devtools";
-// import { getCloudinaryImages } from "../server/common/get-cloudinary-images";
+// import { ReactQueryDevtools } from "react-query/devtools";
 import { trpc } from "../utils/trpc";
 
 type ButtonProps = ComponentPropsWithoutRef<"button">;
@@ -28,41 +29,36 @@ const DeleteButton: FC<ButtonProps> = ({ id, ...rest }) => {
 };
 
 const Home: NextPage = () => {
-  const hello = trpc.useQuery(["example.getAll"]);
-  const create = trpc.useMutation(["example.create"]);
-  const del = trpc.useMutation(["example.delete"]);
-  const session = trpc.useQuery(["example.getSession"]);
-  const images = trpc.useQuery([
-    "example.getCloudinaryImages",
-    { folder: "samples/people" },
-  ]);
+  const hello = trpc.example.getAll.useQuery();
+  const del = trpc.example.delete.useMutation({
+    onSuccess: () => {
+      utils.example.getAll.invalidate();
+    },
+  });
+
+  const session = trpc.example.getSession.useQuery();
+  const images = trpc.example.getCloudinaryImages.useQuery({
+    folder: "samples/people",
+  });
+  // In component‼️:
   const utils = trpc.useContext();
+  const create = trpc.example.create.useMutation({
+    onSuccess() {
+      utils.example.getAll.invalidate();
+      // utils.post.byId.invalidate({ id: input.id }); // Will not invalidate queries for other id's 👍
+    },
+  });
   const [name, setName] = useState("");
 
   const handleSubmit: FormEventHandler<HTMLFormElement> = async (event) => {
     event.preventDefault();
 
-    create.mutate(
-      { text: name },
-      {
-        onSettled: () => {
-          setName("");
-          utils.invalidateQueries(["example.getAll"]);
-        },
-      }
-    );
+    create.mutate({ text: name });
   };
 
   const handleDelete = async (id: string) => {
     console.log("[DELETE]", id);
-    del.mutate(
-      { id },
-      {
-        onSettled: () => {
-          return utils.invalidateQueries(["example.getAll"]);
-        },
-      }
-    );
+    del.mutate({ id });
   };
 
   const handleChange: ChangeEventHandler<HTMLInputElement> = (event) => {
@@ -77,7 +73,7 @@ const Home: NextPage = () => {
         <link href="/favicon.ico" rel="icon" />
       </Head>
 
-      <main className="container mx-auto flex h-screen flex-col items-center  px-4 py-8">
+      <main className="container mx-auto px-4 py-8">
         <h1 className="text-2xl font-extrabold text-gray-700  md:text-[5rem] lg:text-5xl">
           {`meganelshoff`}
           <span className="text-purple-300">.photo</span>
@@ -133,24 +129,23 @@ const Home: NextPage = () => {
           })}
         </div>
         {!images.isLoading ? (
-          <div className="max-w-xlg mt-8 grid grid-cols-1 gap-4 lg:grid-cols-2">
+          <div className="lg:max-w-xlg mt-8 grid w-full grid-cols-1 gap-4 lg:grid-cols-2">
             {images.data?.resources.map((image) => {
               if (image.resource_type !== "image") {
                 return null;
               }
 
               return (
-                <div key={image.asset_id} className="aspect-[16/9]">
-                  <Image
-                    src={image.public_id}
-                    alt="TODO"
-                    height={image.height}
-                    width={image.width}
-                    sizes="100vw"
-                    className="h-auto w-full rounded-lg shadow-lg"
-                    placeholder="blur"
-                  />
-                </div>
+                <Image
+                  key={image.public_id}
+                  src={image.public_id}
+                  alt="TODO"
+                  height={495}
+                  width={744}
+                  className="h-auto w-full rounded-lg shadow-lg"
+                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                  // placeholder="blur"
+                />
               );
             })}
           </div>
@@ -158,9 +153,9 @@ const Home: NextPage = () => {
           "loading images..."
         )}
       </main>
-      {process.env.NODE_ENV !== "production" && (
+      {/* {process.env.NODE_ENV !== "production" && (
         <ReactQueryDevtools initialIsOpen={false} />
-      )}
+      )} */}
     </>
   );
 };

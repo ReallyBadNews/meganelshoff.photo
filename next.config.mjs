@@ -20,7 +20,13 @@ export default defineNextConfig({
   },
   experimental: { images: { allowFutureImage: true } },
   images: {
-    // domains: ["res.cloudinary.com"],
-    unoptimized: true,
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "res.cloudinary.com",
+        port: "",
+        pathname: "/ddibad3k7/**",
+      },
+    ],
   },
 });
