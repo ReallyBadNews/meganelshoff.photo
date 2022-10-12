@@ -18,13 +18,12 @@ export default defineNextConfig({
     locales: ["en"],
     defaultLocale: "en",
   },
-  experimental: { images: { allowFutureImage: true } },
   images: {
     remotePatterns: [
       {
         protocol: "https",
         hostname: "res.cloudinary.com",
-        port: "",
+        port: "443",
         pathname: "/ddibad3k7/**",
       },
     ],
