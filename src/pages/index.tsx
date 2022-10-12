@@ -1,73 +1,14 @@
 import { NextPage } from "next";
-import { signIn, signOut } from "next-auth/react";
 import Image from "../components/ds/Image";
+// import Image from "next/future/image";
+// import Image from "next/image";
 import Head from "next/head";
-import {
-  ChangeEventHandler,
-  ComponentPropsWithoutRef,
-  FC,
-  FormEventHandler,
-  useState,
-} from "react";
-import { ReactQueryDevtools } from "react-query/devtools";
-// import { getCloudinaryImages } from "../server/common/get-cloudinary-images";
 import { trpc } from "../utils/trpc";
 
-type ButtonProps = ComponentPropsWithoutRef<"button">;
-
-const DeleteButton: FC<ButtonProps> = ({ id, ...rest }) => {
-  return (
-    <button
-      className="rounded-lg bg-red-100 px-4 py-2 text-sm font-medium  text-red-500 hover:bg-red-300"
-      id={id}
-      {...rest}
-    >
-      Delete
-    </button>
-  );
-};
-
 const Home: NextPage = () => {
-  const hello = trpc.useQuery(["example.getAll"]);
-  const create = trpc.useMutation(["example.create"]);
-  const del = trpc.useMutation(["example.delete"]);
-  const session = trpc.useQuery(["example.getSession"]);
-  const images = trpc.useQuery([
-    "example.getCloudinaryImages",
-    { folder: "samples/people" },
-  ]);
-  const utils = trpc.useContext();
-  const [name, setName] = useState("");
-
-  const handleSubmit: FormEventHandler<HTMLFormElement> = async (event) => {
-    event.preventDefault();
-
-    create.mutate(
-      { text: name },
-      {
-        onSettled: () => {
-          setName("");
-          utils.invalidateQueries(["example.getAll"]);
-        },
-      }
-    );
-  };
-
-  const handleDelete = async (id: string) => {
-    console.log("[DELETE]", id);
-    del.mutate(
-      { id },
-      {
-        onSettled: () => {
-          return utils.invalidateQueries(["example.getAll"]);
-        },
-      }
-    );
-  };
-
-  const handleChange: ChangeEventHandler<HTMLInputElement> = (event) => {
-    setName(event.target.value);
-  };
+  const images = trpc.example.getCloudinaryImages.useQuery({
+    folder: "weddings",
+  });
 
   return (
     <>
@@ -77,80 +18,34 @@ const Home: NextPage = () => {
         <link href="/favicon.ico" rel="icon" />
       </Head>
 
-      <main className="container mx-auto flex h-screen flex-col items-center  px-4 py-8">
-        <h1 className="text-2xl font-extrabold text-gray-700  md:text-[5rem] lg:text-5xl">
+      <main className="container mx-auto px-4 py-8">
+        <h1 className="text-2xl font-extrabold text-blue-10 dark:text-blue-dark-10 md:text-[5rem] lg:text-5xl">
           {`meganelshoff`}
-          <span className="text-purple-300">.photo</span>
+          <span className="text-pink-111">.photo</span>
         </h1>
-        {session.data?.user ? (
-          <div className="mt-8 flex flex-row items-center gap-4">
-            <p>{`Hello, ${session.data.user.name}`}</p>
-            <button
-              className="rounded-lg bg-red-100 px-4 py-1 text-sm font-medium  text-red-500 hover:bg-red-300"
-              onClick={() => {
-                return signOut();
-              }}
-            >
-              Sign Out
-            </button>
-          </div>
-        ) : (
-          <button
-            className="rounded-lg bg-blue-100 px-4 py-2 text-sm font-medium  text-blue-700 hover:bg-blue-200 active:bg-blue-300"
-            onClick={() => {
-              return signIn("google");
-            }}
-          >
-            Sign In
-          </button>
-        )}
-        <form className="mt-8" onSubmit={handleSubmit}>
-          <label
-            className="block text-sm font-medium text-gray-700"
-            htmlFor="messsage"
-          >
-            Message:
-          </label>
-          <input
-            className="rounded-lg border-2 border-gray-500 bg-slate-100 py-2 px-4 text-gray-700 focus:border-purple-500 focus:bg-white focus:outline-none"
-            id="messsage"
-            value={name}
-            onChange={handleChange}
-          />
-        </form>
-        <div className="flex w-full flex-col items-center justify-center gap-4 pt-6 text-3xl text-slate-600">
-          {hello.data?.map((item) => {
-            return (
-              <div key={item.id} className="flex items-baseline gap-4">
-                <p className="text-base">{item.text}</p>
-                {session.data?.user ? (
-                  <DeleteButton onClick={() => handleDelete(item.id)}>
-                    Delete
-                  </DeleteButton>
-                ) : null}
-              </div>
-            );
-          })}
-        </div>
         {!images.isLoading ? (
-          <div className="max-w-xlg mt-8 grid grid-cols-1 gap-4 lg:grid-cols-2">
+          <div className="mt-8 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
             {images.data?.resources.map((image) => {
               if (image.resource_type !== "image") {
                 return null;
               }
 
               return (
-                <div key={image.asset_id} className="aspect-[16/9]">
-                  <Image
-                    src={image.public_id}
-                    alt="TODO"
-                    height={image.height}
-                    width={image.width}
-                    sizes="100vw"
-                    className="h-auto w-full rounded-lg shadow-lg"
-                    placeholder="blur"
-                  />
-                </div>
+                <Image
+                  key={image.public_id}
+                  src={image.public_id}
+                  alt="TODO"
+                  height={495}
+                  width={744}
+                  className="h-auto w-full rounded-lg shadow-lg"
+                  loader={({ src, width, quality }) => {
+                    return `https://res.cloudinary.com/ddibad3k7/image/upload/f_auto/w_${width},q_${
+                      quality || 75
+                    }/${src}`;
+                  }}
+                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                  // placeholder="blur"
+                />
               );
             })}
           </div>
@@ -158,9 +53,6 @@ const Home: NextPage = () => {
           "loading images..."
         )}
       </main>
-      {process.env.NODE_ENV !== "production" && (
-        <ReactQueryDevtools initialIsOpen={false} />
-      )}
     </>
   );
 };

@@ -1,7 +1,7 @@
 import Image, { ImageLoader, ImageProps } from "next/future/image";
 
 const cloudinaryLoader: ImageLoader = ({ src, width, quality }) => {
-  return `https://res.cloudinary.com/ddibad3k7/image/upload/w_${width},q_${
+  return `https://res.cloudinary.com/ddibad3k7/image/upload/f_auto/w_${width},q_${
     quality || 75
   }/${src}`;
 };
