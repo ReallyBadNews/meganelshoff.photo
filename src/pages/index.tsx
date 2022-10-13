@@ -20,8 +20,8 @@ const Home: NextPage = () => {
         <link href="/favicon.ico" rel="icon" />
       </Head>
 
-      <header className="border-b-2 border-b-mauve-6 bg-mauve-3 px-4 py-8 dark:border-b-mauve-dark-6 dark:bg-mauve-dark-3">
-        <div className="container mx-auto">
+      <header className="border-b-2 border-b-mauve-6 bg-mauve-3 dark:border-b-mauve-dark-6 dark:bg-mauve-dark-3">
+        <div className="container mx-auto px-4 py-8">
           <picture>
             <source
               srcSet={darkLogo.src}
