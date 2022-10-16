@@ -8,9 +8,7 @@ import darkLogo from "../../public/me-dark-logo.png";
 // import { useSession, signOut, signIn } from "next-auth/react";
 
 const Home: NextPage = () => {
-  const images = trpc.example.getCloudinaryImages.useQuery({
-    folder: "weddings",
-  });
+  const images = trpc.cloudinary.getByFolder.useQuery({ folder: "weddings" });
 
   return (
     <>
@@ -27,7 +25,6 @@ const Home: NextPage = () => {
               srcSet={darkLogo.src}
               media="(prefers-color-scheme: dark)"
             />
-            {/* <img src="day.jpg" /> */}
             <Image src={logo} alt="logo" height={56} />
           </picture>
         </div>
