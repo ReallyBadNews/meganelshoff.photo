@@ -1,4 +1,5 @@
-import cloudinary from "cloudinary";
+// import cloudinary from "cloudinary";
+import { v2 as cloudinary } from "cloudinary";
 import { env } from "../../env/server.mjs";
 
 export interface CloudinarySearchResult {
@@ -25,7 +26,14 @@ interface PhotoById {
   url: string;
   secure_url: string;
   next_cursor: string;
-  derived: unknown[];
+  derived: {
+    transformation: string;
+    format: string;
+    bytes: number;
+    idd: string;
+    url: string;
+    secure_url: string;
+  }[];
   rate_limit_allowed: number;
   rate_limit_reset_at: string;
   rate_limit_remaining: number;
@@ -60,7 +68,7 @@ export interface Resource {
   pages?: number;
 }
 
-cloudinary.v2.config({
+cloudinary.config({
   cloud_name: env.CLOUDINARY_CLOUD_NAME,
   api_key: env.CLOUDINARY_API_KEY,
   api_secret: env.CLOUDINARY_API_SECRET,
@@ -76,10 +84,8 @@ export const getImagesByFolder = async ({
   folder,
   maxResults = 30,
 }: GetImagesByFolderOptions) => {
-  const images = await cloudinary.v2.search
-    .expression(
-      `folder:${folder}` // add your folder
-    )
+  const images = await cloudinary.search
+    .expression(`folder:${folder}`)
     .sort_by("public_id", "desc")
     .max_results(maxResults)
     .execute()
@@ -92,9 +98,15 @@ export const getImagesByFolder = async ({
 };
 
 export const getPhotoById = async (id: string) => {
-  const image: PhotoById = await cloudinary.v2.api.resource(id);
+  const image: PhotoById = await cloudinary.api.resource(id);
 
   console.log("[getPhotoById] image", image);
 
   return image;
 };
+
+// export const getAllImages = async () => {
+//   cloudinary.api
+//     .resources({ type: "upload", prefix: "sample" })
+//     .then((result) => console.log(result));
+// };
