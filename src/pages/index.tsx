@@ -1,6 +1,6 @@
 import { NextPage } from "next";
-// import Image from "../components/ds/Image";
-import Image from "next/future/image";
+import Image from "../components/ds/Image";
+// import Image from "next/future/image";
 import Head from "next/head";
 import { trpc } from "../utils/trpc";
 import logo from "../../public/me-logo.png";
@@ -8,7 +8,16 @@ import darkLogo from "../../public/me-dark-logo.png";
 // import { useSession, signOut, signIn } from "next-auth/react";
 
 const Home: NextPage = () => {
-  const images = trpc.cloudinary.getByFolder.useQuery({ folder: "weddings" });
+  const images = trpc.cloudinary.getByFolder.useQuery({
+    folder: "weddings",
+    maxResults: 30,
+  });
+
+  const singleImage = trpc.cloudinary.getById.useQuery({
+    id: "weddings/MEP_weddings-018_naqpdt",
+  });
+
+  console.log("[singleImage]", singleImage.data);
 
   return (
     <>
@@ -30,33 +39,41 @@ const Home: NextPage = () => {
         </div>
       </header>
       <main className="container mx-auto px-4 py-8">
+        {/* {singleImage.data && (
+          <Image
+            src={singleImage.data.public_id}
+            alt={singleImage.data.alt}
+            height={singleImage.data.height}
+            width={singleImage.data.width}
+            sizes="100w"
+            // sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+          />
+        )} */}
         {!images.isLoading ? (
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-            {images.data?.resources.map((image) => {
+          <div className="gap-8 space-y-8 md:columns-2 lg:columns-3">
+            {images.data?.map((image) => {
               if (image.resource_type !== "image") {
                 return null;
               }
 
               return (
-                <div key={image.public_id} className="relative aspect-square">
-                  <Image
-                    key={image.public_id}
-                    src={image.public_id}
-                    alt="TODO"
-                    // height={495}
-                    // width={744}
-                    className="h-auto w-full rounded-lg shadow-lg"
-                    loader={({ src, width, quality }) => {
-                      return `https://res.cloudinary.com/ddibad3k7/image/upload/f_auto/w_${width},q_${
-                        quality || 75
-                      }/${src}`;
-                    }}
-                    style={{ objectFit: "cover" }}
-                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                    fill
-                    // placeholder="blur"
-                  />
-                </div>
+                <Image
+                  key={image.public_id}
+                  src={image.public_id}
+                  alt="TODO"
+                  height={image.height}
+                  width={image.width}
+                  className="h-auto w-full rounded-lg shadow-lg"
+                  loader={({ src, width, quality }) => {
+                    return `https://res.cloudinary.com/ddibad3k7/image/upload/f_auto/w_${width},q_${
+                      quality || 75
+                    }/${src}`;
+                  }}
+                  // sizes="(max-width: 768px) calc(50vw - 2rem), (max-width: 1024px) calc(33vw - 2rem)"
+                  sizes="(min-width: 768px) calc(50vw - 2rem), (min-width: 1024px) calc(33vw - 2rem), calc(100vw - 2rem)"
+                  placeholder="blur"
+                  blurDataURL={image.base64}
+                />
               );
             })}
           </div>
