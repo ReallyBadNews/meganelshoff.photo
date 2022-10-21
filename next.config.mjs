@@ -6,8 +6,11 @@
  * @param {T} config - A generic parameter that flows through to the return type
  * @constraint {{import('next').NextConfig}}
  */
+
+import { withPlaiceholder } from "@plaiceholder/next";
+
 function defineNextConfig(config) {
-  return config;
+  return withPlaiceholder(config);
 }
 
 export default defineNextConfig({
